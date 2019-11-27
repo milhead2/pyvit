@@ -26,6 +26,22 @@ class Dispatcher:
         self._running = False
         self._single_process = single_process
 
+        #
+        # Will only operate on filters if the underlying can hardware supports 
+        # filtering.
+        #
+        if hasattr(device, 'apply_filters'):
+            self._filter_list = []
+        else:
+            self._filter_list = None
+
+    def add_filter(self, id, mask):
+        if self._filter_list != None:
+            self._filter_list.append((id,mask))
+
+        if self._device.running:
+            self._device.apply_filters(self._filter_list)
+
     def add_receiver(self, rx_queue):
         if self.is_running:
             raise Exception('dispatcher must be stopped to add receiver')
@@ -52,6 +68,9 @@ class Dispatcher:
     def start(self):
         if self.is_running:
             raise Exception('dispatcher already running')
+
+        if self._filter_list:
+            self._device.apply_filters(self._filter_list)
 
         self._device.start()
         self._tx_queue = Queue()

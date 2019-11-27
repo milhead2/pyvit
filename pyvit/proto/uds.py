@@ -1448,6 +1448,8 @@ class UDSInterface:
             self.transport_layer = IsotpNormalAddressing(dispatcher, tx_arb_id)
             self.transport_layer.rx_arb_id = rx_arb_id
 
+        dispatcher.add_filter(id=rx_arb_id, mask=0x7ff)
+
     def request(self, service, timeout=0.5):
         self.transport_layer.send(service.encode())
         if self.transport_layer.N_TAtype == N_TAtype.physical:

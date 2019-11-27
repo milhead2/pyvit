@@ -6,6 +6,7 @@ from .. import can
 
 
 class SocketCanDev:
+
     def __init__(self, ndev):
         self.running = False
 
@@ -24,6 +25,23 @@ class SocketCanDev:
 
     def stop(self):
         pass
+
+    def apply_filters(self, filter_list):
+        #
+        # The can_filter struct looks like
+        # struct can_filter{
+        #       uint32_t id;
+        #       uint32_t mask;
+        # };
+        # the *optval is an array of the above structures.  The size of the array 
+        # cannot exceed 512 entries.
+        #
+        encodedArray = b""
+        for (fid, mask) in filter_list:
+            entry = struct.pack('<LL', fid, mask)
+            encodedArray += entry
+
+        self.socket.setsockopt(socket.SOL_CAN_RAW, socket.CAN_RAW_FILTER, encodedArray)
 
     def recv(self):
         assert self.running, 'device not running'
