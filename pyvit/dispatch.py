@@ -97,6 +97,16 @@ class Dispatcher:
         self._device.stop()
         self._running = False
 
+        #
+        # Clear any data from current queues
+        #
+        for q in self._rx_queues:
+            while not q.empty():
+                q.get()
+        while not self._tx_queue.empty():
+                q.get()
+
+
     @property
     def is_running(self):
         return self._running
